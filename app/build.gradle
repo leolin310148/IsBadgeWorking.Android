@@ -2,6 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 def shortcutbadgerVersion = '1.1.11'
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 android {
     compileSdkVersion 24
@@ -11,17 +13,26 @@ android {
         minSdkVersion 15
         targetSdkVersion 24
         versionCode 1
-        versionName "1.0"
+        versionName "${new Date().format("yyyyMMddHHmmss")}"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+    signingConfigs {
+        release {
+            storeFile file("${project.rootDir}/keystore.jks")
+            storePassword properties.getProperty('build.apk.release.store.password')
+            keyAlias properties.getProperty('build.apk.release.key.alias')
+            keyPassword properties.getProperty('build.apk.release.key.password')
+        }
+    }
     buildTypes {
-        debug{
+        debug {
             buildConfigField 'String', 'SHORTCUTBADGER_VERSION', '"' + shortcutbadgerVersion + '"'
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField 'String', 'SHORTCUTBADGER_VERSION', '"' + shortcutbadgerVersion + '"'
+            signingConfig signingConfigs.release
         }
     }
     sourceSets {
@@ -32,12 +43,14 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
-
+    lintOptions {
+        abortOnError false
+    }
 }
 
 repositories {
     mavenCentral()
-    maven{
+    maven {
         url "http://maven-repo.leolin.me/artifactory/libs-release/"
     }
 }
@@ -49,8 +62,9 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:24.2.1'
-    compile "me.leolin:SpeedView:0.0.+"
-    compile(group: 'me.leolin', name: 'IsBadgeWorking-Retrofit-Api', version: '1.0.1')
+    compile "me.leolin:ShortcutBadger:$shortcutbadgerVersion@aar"
+    compile 'org.jetbrains.anko:anko-common:0.9'
+    compile group: 'me.leolin', name: 'IsBadgeWorking-Retrofit-Api', version: '1.0.1'
     compile group: 'com.squareup.retrofit2', name: 'converter-jackson', version: '2.1.0'
     compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.8.3'
     compile group: 'com.squareup.okhttp3', name: 'logging-interceptor', version: '3.4.1'
