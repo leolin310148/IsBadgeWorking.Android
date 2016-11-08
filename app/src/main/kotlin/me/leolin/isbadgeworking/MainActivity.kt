@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,16 +26,23 @@ import org.jetbrains.anko.toast
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
 
     val isBadgeWorkingApi by lazy {
         Retrofit.Builder()
-                .baseUrl("https://api.leolin.me/is-badge-working/")
+                .baseUrl(if (Build.VERSION.SDK_INT >= 19) {
+                    "https://api.leolin.me/is-badge-working/"
+                } else {
+                    "http://api.leolin.me/is-badge-working/"
+                })
                 .addConverterFactory(JacksonConverterFactory.create(jacksonObjectMapper()))
                 .client(
                         OkHttpClient().newBuilder()
+                                .connectTimeout(15, TimeUnit.SECONDS)
+                                .readTimeout(15, TimeUnit.SECONDS)
                                 .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
                                 .build()
                 )
@@ -93,14 +101,22 @@ class MainActivity : AppCompatActivity() {
         if (send) {
             val dialog = indeterminateProgressDialog("Sending...") { show() }
             doAsync {
-                isBadgeWorkingApi.sendReport(req).execute().apply {
+                try {
+                    isBadgeWorkingApi.sendReport(req).execute().apply {
+                        runOnUiThread {
+                            dialog.dismiss()
+                            if (code() == 200) {
+                                toast("Thank you!")
+                            } else {
+                                toast("Hmm..something wrong, please try later.")
+                            }
+                        }
+                    }
+                } catch(e: Exception) {
+                    Log.e("err", e.message, e)
                     runOnUiThread {
                         dialog.dismiss()
-                        if (code() == 200) {
-                            toast("Thank you!")
-                        } else {
-                            toast("Hmm..something wrong, please try later.")
-                        }
+                        toast("Hmm..something wrong, please try later.")
                     }
                 }
 
