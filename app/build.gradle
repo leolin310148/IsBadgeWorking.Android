@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
-def shortcutbadgerVersion = '1.1.11'
+def shortcutbadgerVersion = '1.1.12'
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
@@ -12,7 +12,7 @@ android {
         applicationId "me.leolin.isbadgeworking"
         minSdkVersion 15
         targetSdkVersion 24
-        versionCode 2
+        versionCode 3
         versionName "${new Date().format("yyyyMMddHHmmss")}"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
