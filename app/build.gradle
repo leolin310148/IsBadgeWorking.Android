@@ -1,18 +1,18 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
-def shortcutbadgerVersion = '1.1.13'
+def shortcutbadgerVersion = '1.1.18'
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "me.leolin.isbadgeworking"
         minSdkVersion 15
-        targetSdkVersion 24
-        versionCode 4
+        targetSdkVersion 25
+        versionCode 5
         versionName "${new Date().format("yyyyMMddHHmmss")}"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -61,7 +61,7 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:appcompat-v7:25.3.1'
     compile "me.leolin:ShortcutBadger:$shortcutbadgerVersion@aar"
     compile 'org.jetbrains.anko:anko-common:0.9'
     compile group: 'me.leolin', name: 'IsBadgeWorking-Retrofit-Api', version: '1.0.1'
